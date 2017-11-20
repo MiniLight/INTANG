@@ -4,55 +4,14 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
 #include <sys/types.h>
 
 #define MAX_QNAME_LEN 64
 
 #define MAX_REQLINE_LEN 1000
-
-/*
- * IP header
- */
-struct myiphdr {
-        u_int8_t    ihl:4,
-                version:4;
-        u_int8_t    tos;
-        u_int16_t   tot_len;
-        u_int16_t   id;
-        u_int16_t   frag_off;
-        u_int8_t    ttl;
-        u_int8_t    protocol;
-        u_int16_t   check;
-        u_int32_t   saddr;
-        u_int32_t   daddr;
-};
-
-/*
- * UDP header
- */
-struct myudphdr { 
-	u_int16_t uh_sport;     /* source port */
-	u_int16_t uh_dport;     /* destination port */
-	u_int16_t uh_ulen;      /* udp length */
-	u_int16_t uh_sum;       /* udp checksum */
-};
-
-/*
- * TCP header.
- * Per RFC 793, September, 1981.
- */
-struct mytcphdr {
-	u_int16_t	th_sport;               /* source port */
-	u_int16_t	th_dport;               /* destination port */
-	u_int32_t	th_seq;                 /* sequence number */
-	u_int32_t	th_ack;                 /* acknowledgement number */
-    u_int8_t    th_x2:4,                /* (unused) */
-            th_off:4;               /* data offset */
-	u_int8_t    th_flags;
-	u_int16_t   th_win;                 /* window */
-	u_int16_t   th_sum;                 /* checksum */
-	u_int16_t   th_urp;                 /* urgent pointer */
-};
 
 /*
  * UDP/TCP pseudo header
@@ -100,10 +59,10 @@ struct mypacket
 {
     unsigned char *data;
     unsigned int len;
-    struct myiphdr *iphdr;  // layer 3 IP header
+    struct iphdr *iphdr;  // layer 3 IP header
     union {
-        struct mytcphdr *tcphdr;    // layer 4 TCP header
-        struct myudphdr *udphdr;    // layer 4 UDP header
+        struct tcphdr *tcphdr;    // layer 4 TCP header
+        struct udphdr *udphdr;    // layer 4 UDP header
     };
     unsigned char *payload; // layer 4 payload
     unsigned int payload_len;
@@ -124,14 +83,14 @@ struct tcpinfo
 };
 
 
-static inline struct myiphdr* ip_hdr(unsigned char *pkt_data)
+static inline struct iphdr* ip_hdr(unsigned char *pkt_data)
 {
-    return (struct myiphdr*)pkt_data;
+    return (struct iphdr*)pkt_data;
 }
 
-static inline struct mytcphdr* tcp_hdr(unsigned char *pkt_data)
+static inline struct tcphdr* tcp_hdr(unsigned char *pkt_data)
 {
-    return (struct mytcphdr*)(pkt_data+ip_hdr(pkt_data)->ihl*4);
+    return (struct tcphdr*)(pkt_data+ip_hdr(pkt_data)->ihl*4);
 }
 
 static inline unsigned char* tcp_payload(unsigned char *pkt_data)
@@ -144,9 +103,9 @@ static inline unsigned char* udp_payload(unsigned char *pkt_data)
     return pkt_data+ip_hdr(pkt_data)->ihl*4+8;
 }
 
-static inline struct myudphdr* udp_hdr(unsigned char *pkt_data)
+static inline struct udphdr* udp_hdr(unsigned char *pkt_data)
 {
-    return (struct myudphdr*)(pkt_data+((struct myiphdr*)pkt_data)->ihl*4);
+    return (struct udphdr*)(pkt_data+((struct iphdr*)pkt_data)->ihl*4);
 }
 
 

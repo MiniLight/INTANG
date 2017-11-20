@@ -591,8 +591,8 @@ void cleanup()
 int process_udp_packet(struct mypacket *packet, char inout)
 {
     int i, ret;
-    struct myiphdr *iphdr = packet->iphdr;
-    struct myudphdr *udphdr = packet->udphdr;
+    struct iphdr *iphdr = packet->iphdr;
+    struct udphdr *udphdr = packet->udphdr;
 
     char sip[16], dip[16];
     ip2str(iphdr->saddr, sip);
@@ -711,8 +711,8 @@ int process_udp_packet(struct mypacket *packet, char inout)
 int process_tcp_packet(struct mypacket *packet, char inout)
 {
     int ret = 0;
-    struct myiphdr *iphdr = packet->iphdr;
-    struct mytcphdr *tcphdr = packet->tcphdr;
+    struct iphdr *iphdr = packet->iphdr;
+    struct tcphdr *tcphdr = packet->tcphdr;
     unsigned char *payload = packet->payload;
 
     char sip[16], dip[16];

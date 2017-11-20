@@ -42,7 +42,7 @@ int close_socket()
 
 u_int16_t ip_checksum(char *packet, int len)
 {
-    struct myiphdr *iphdr = (struct myiphdr*)packet;
+    struct iphdr *iphdr = (struct iphdr*)packet;
     int iphdr_len = iphdr->ihl << 2;
 
     // set ip checksum to zero
@@ -71,9 +71,9 @@ u_int16_t ip_checksum(char *packet, int len)
 
 u_int16_t tcp_checksum(char *packet, int len)
 {
-    struct myiphdr *iphdr = (struct myiphdr*)packet;
+    struct iphdr *iphdr = (struct iphdr*)packet;
     int iphdr_len = iphdr->ihl << 2;
-    struct mytcphdr *tcphdr = (struct mytcphdr*)(packet + iphdr_len);
+    struct tcphdr *tcphdr = (struct tcphdr*)(packet + iphdr_len);
     int tcphdr_len = tcphdr->th_off << 2;
     int payload_len = len - iphdr_len - tcphdr_len;
 
@@ -115,9 +115,9 @@ u_int16_t tcp_checksum(char *packet, int len)
 
 u_int16_t udp_checksum(char *packet, int len)
 {
-    struct myiphdr *iphdr = (struct myiphdr*)packet;
+    struct iphdr *iphdr = (struct iphdr*)packet;
     int iphdr_len = iphdr->ihl << 2;
-    struct myudphdr *udphdr = (struct myudphdr*)(packet + iphdr_len);
+    struct udphdr *udphdr = (struct udphdr*)(packet + iphdr_len);
     int udphdr_len = 8;
     int payload_len = len - iphdr_len - udphdr_len;
 
@@ -178,7 +178,7 @@ void send_tcp(struct send_tcp_vars *vars)
     char packet[MAX_PACKET_SIZE];
     memset(packet, 0, MAX_PACKET_SIZE);
 
-    struct myiphdr *iphdr = (struct myiphdr*)packet;
+    struct iphdr *iphdr = (struct iphdr*)packet;
     int iphdr_len = 20;
 
     iphdr->version = 4;
@@ -196,7 +196,7 @@ void send_tcp(struct send_tcp_vars *vars)
     iphdr->saddr = str2ip(vars->src_ip);
     iphdr->daddr = str2ip(vars->dst_ip);
     
-    struct mytcphdr *tcphdr = (struct mytcphdr*)(packet + iphdr_len);
+    struct tcphdr *tcphdr = (struct tcphdr*)(packet + iphdr_len);
     int tcphdr_len = 20;
     
     tcphdr->th_sport = htons(vars->src_port);
@@ -258,7 +258,7 @@ void send_udp(struct send_udp_vars *vars)
     char packet[MAX_PACKET_SIZE];
     memset(packet, 0, MAX_PACKET_SIZE);
 
-    struct myiphdr *iphdr = (struct myiphdr*)packet;
+    struct iphdr *iphdr = (struct iphdr*)packet;
     int iphdr_len = 20;
 
     iphdr->version = 4;
@@ -276,7 +276,7 @@ void send_udp(struct send_udp_vars *vars)
     iphdr->saddr = str2ip(vars->src_ip);
     iphdr->daddr = str2ip(vars->dst_ip);
 
-    struct myudphdr *udphdr = (struct myudphdr*)(packet + iphdr_len);
+    struct udphdr *udphdr = (struct udphdr*)(packet + iphdr_len);
     int udphdr_len = 8;
     
     udphdr->uh_sport = htons(vars->src_port);
@@ -317,8 +317,8 @@ void send_udp2(struct mypacket *packet)
     int tot_len = 0;
     int iphdr_len = 20;
     int udphdr_len = 8;
-    struct myiphdr *iphdr = (struct myiphdr*)pkt;
-    struct myudphdr *udphdr = (struct myudphdr*)(pkt + iphdr_len);
+    struct iphdr *iphdr = (struct iphdr*)pkt;
+    struct udphdr *udphdr = (struct udphdr*)(pkt + iphdr_len);
 
     struct sockaddr_in dst_addr;
     dst_addr.sin_family = AF_INET;
@@ -329,7 +329,7 @@ void send_udp2(struct mypacket *packet)
     
     tot_len = iphdr_len + udphdr_len + cut_pos;
     memcpy(pkt, packet->data, tot_len);
-    udphdr = (struct myudphdr*)(pkt + iphdr_len);
+    udphdr = (struct udphdr*)(pkt + iphdr_len);
     udphdr->uh_ulen = udphdr_len + cut_pos;
 
     ret = sendto(raw_sock, pkt, tot_len, 0, (struct sockaddr*)&dst_addr, sizeof dst_addr);
@@ -542,7 +542,7 @@ void send_ip_fragment(
     char packet[MAX_PACKET_SIZE];
     memset(packet, 0, MAX_PACKET_SIZE);
 
-    struct myiphdr *iphdr = (struct myiphdr*)packet;
+    struct iphdr *iphdr = (struct iphdr*)packet;
     int iphdr_len = 20;
 
     iphdr->version = 4;
@@ -560,7 +560,7 @@ void send_ip_fragment(
     int tot_len;
     if (fragoff == 0) {
         // first packet, make tcp header
-        struct mytcphdr *tcphdr = (struct mytcphdr*)(packet + iphdr_len);
+        struct tcphdr *tcphdr = (struct tcphdr*)(packet + iphdr_len);
         int tcphdr_len = 20;
     
         tcphdr->th_sport = htons(src_port);
