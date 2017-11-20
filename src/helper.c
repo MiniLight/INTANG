@@ -126,52 +126,52 @@ void show_packet(struct mypacket *packet)
     char sip[16], dip[16];
     printf("-------------------------------------\n");
     printf("IP Header:\n");
-    printf("+ IHL: %d\n", packet->iphdr->ihl);
-    printf("+ Version: %d\n", packet->iphdr->version);
-    printf("+ TOS: %d\n", packet->iphdr->tos);
-    printf("+ Total length: %d\n", ntohs(packet->iphdr->tot_len));
-    printf("+ ID: %d\n", ntohs(packet->iphdr->id));
-    printf("+ IP flags: %d\n", (packet->iphdr->frag_off & 0xff) >> 5);
-    printf("+ Fragment Offset: %d\n", ((packet->iphdr->frag_off & 0x1f) << 8) + ((packet->iphdr->frag_off & 0xff00) >> 8));
-    printf("+ TTL: %d\n", packet->iphdr->ttl);
-    printf("+ Protocol: %d\n", packet->iphdr->protocol);
-    printf("+ IP checksum: %04x\n", ntohs(packet->iphdr->check));
-    printf("+ Source: %s\n", ip2str(packet->iphdr->saddr, sip));
-    printf("+ Destination: %s\n", ip2str(packet->iphdr->daddr, dip));
+    printf("+ IHL: %d\n", packet->ip4.iphdr->ihl);
+    printf("+ Version: %d\n", packet->ip4.iphdr->version);
+    printf("+ TOS: %d\n", packet->ip4.iphdr->tos);
+    printf("+ Total length: %d\n", ntohs(packet->ip4.iphdr->tot_len));
+    printf("+ ID: %d\n", ntohs(packet->ip4.iphdr->id));
+    printf("+ IP flags: %d\n", (packet->ip4.iphdr->frag_off & 0xff) >> 5);
+    printf("+ Fragment Offset: %d\n", ((packet->ip4.iphdr->frag_off & 0x1f) << 8) + ((packet->ip4.iphdr->frag_off & 0xff00) >> 8));
+    printf("+ TTL: %d\n", packet->ip4.iphdr->ttl);
+    printf("+ Protocol: %d\n", packet->ip4.iphdr->protocol);
+    printf("+ IP checksum: %04x\n", ntohs(packet->ip4.iphdr->check));
+    printf("+ Source: %s\n", ip2str(packet->ip4.iphdr->saddr, sip));
+    printf("+ Destination: %s\n", ip2str(packet->ip4.iphdr->daddr, dip));
     printf("-------------------------------------\n");
-    switch (packet->iphdr->protocol) {
+    switch (packet->ip4.iphdr->protocol) {
         case 6: // TCP
             printf("\tTCP Header:\n");
-            printf("\t+ SPort: %d\n", ntohs(packet->tcphdr->th_sport));
-            printf("\t+ DPort: %d\n", ntohs(packet->tcphdr->th_dport));
-            printf("\t+ Seq num: %08x\n", ntohl(packet->tcphdr->th_seq));
-            printf("\t+ Ack num: %08x\n", ntohl(packet->tcphdr->th_sport));
-            printf("\t+ Data offset: %d\n", packet->tcphdr->th_off);
-            printf("\t+ TCP flags: %s\n", tcp_flags(packet->tcphdr->th_flags));
-            printf("\t+ Window: %d\n", ntohs(packet->tcphdr->th_win));
-            printf("\t+ TCP checksum: %04x\n", ntohs(packet->tcphdr->th_sum));
-            printf("\t+ Urgent pointer: %04x\n", ntohs(packet->tcphdr->th_urp));
-            if (packet->tcphdr->th_off != 5) {
+            printf("\t+ SPort: %d\n", ntohs(packet->ip4.tcphdr->th_sport));
+            printf("\t+ DPort: %d\n", ntohs(packet->ip4.tcphdr->th_dport));
+            printf("\t+ Seq num: %08x\n", ntohl(packet->ip4.tcphdr->th_seq));
+            printf("\t+ Ack num: %08x\n", ntohl(packet->ip4.tcphdr->th_sport));
+            printf("\t+ Data offset: %d\n", packet->ip4.tcphdr->th_off);
+            printf("\t+ TCP flags: %s\n", tcp_flags(packet->ip4.tcphdr->th_flags));
+            printf("\t+ Window: %d\n", ntohs(packet->ip4.tcphdr->th_win));
+            printf("\t+ TCP checksum: %04x\n", ntohs(packet->ip4.tcphdr->th_sum));
+            printf("\t+ Urgent pointer: %04x\n", ntohs(packet->ip4.tcphdr->th_urp));
+            if (packet->ip4.tcphdr->th_off != 5) {
                 // optional header
                 printf("\t+ Optionial:\n");
-                hex_dump(((unsigned char*)packet->tcphdr)+packet->tcphdr->th_off*4, packet->tcphdr->th_off*4-20);
+                hex_dump(((unsigned char*)packet->ip4.tcphdr)+packet->ip4.tcphdr->th_off*4, packet->ip4.tcphdr->th_off*4-20);
             }
             printf("\tTCP Payload:\n");
-            hex_dump(packet->payload, packet->payload_len);
+            hex_dump(packet->ip4.payload, packet->ip4.payload_len);
             break;
         case 17: // UDP
             printf("\tUDP Header:\n");
-            printf("\t+ SPort: %d\n", ntohs(packet->udphdr->uh_sport));
-            printf("\t+ DPort: %d\n", ntohs(packet->udphdr->uh_dport));
-            printf("\t+ UDP length: %d\n", ntohs(packet->udphdr->uh_ulen));
-            printf("\t+ UDP checksum: %04x\n", ntohs(packet->udphdr->uh_sum));
+            printf("\t+ SPort: %d\n", ntohs(packet->ip4.udphdr->uh_sport));
+            printf("\t+ DPort: %d\n", ntohs(packet->ip4.udphdr->uh_dport));
+            printf("\t+ UDP length: %d\n", ntohs(packet->ip4.udphdr->uh_ulen));
+            printf("\t+ UDP checksum: %04x\n", ntohs(packet->ip4.udphdr->uh_sum));
             printf("\tUDP Payload:\n");
-            hex_dump(packet->payload, packet->payload_len);
+            hex_dump(packet->ip4.payload, packet->ip4.payload_len);
             break;
         default:
-            printf("Unkonwn Protocol: %d\n", packet->iphdr->protocol);
+            printf("Unkonwn Protocol: %d\n", packet->ip4.iphdr->protocol);
             // payload
-            hex_dump(packet->data+packet->iphdr->ihl*4, packet->len-packet->iphdr->ihl*4);
+            hex_dump(packet->data+packet->ip4.iphdr->ihl*4, packet->len-packet->ip4.iphdr->ihl*4);
     } 
     printf("-------------------------------------\n");
 }

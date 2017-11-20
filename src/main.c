@@ -591,8 +591,8 @@ void cleanup()
 int process_udp_packet(struct mypacket *packet, char inout)
 {
     int i, ret;
-    struct iphdr *iphdr = packet->iphdr;
-    struct udphdr *udphdr = packet->udphdr;
+    struct iphdr *iphdr = packet->ip4.iphdr;
+    struct udphdr *udphdr = packet->ip4.udphdr;
 
     char sip[16], dip[16];
     ip2str(iphdr->saddr, sip);
@@ -611,7 +611,7 @@ int process_udp_packet(struct mypacket *packet, char inout)
 
     if (dport == 53 || sport == 53) {
         // Parse DNS header
-        struct mydnshdr *dnshdr = (struct mydnshdr*)packet->payload;
+        struct mydnshdr *dnshdr = (struct mydnshdr*)packet->ip4.payload;
         unsigned short txn_id = ntohs(dnshdr->txn_id);
         int qdcount = ntohs(dnshdr->questions);
         char qname[MAX_QNAME_LEN];
@@ -668,7 +668,7 @@ int process_udp_packet(struct mypacket *packet, char inout)
                     cache_dns_udp_request(txn_id, qname, &fourtp);
 
                     // send the request over TCP 
-                    ret = send_dns_req(packet->payload, packet->payload_len);
+                    ret = send_dns_req(packet->ip4.payload, packet->ip4.payload_len);
                     if (ret == 0) {
                         // drop the packet 
                         return -1;
@@ -711,9 +711,9 @@ int process_udp_packet(struct mypacket *packet, char inout)
 int process_tcp_packet(struct mypacket *packet, char inout)
 {
     int ret = 0;
-    struct iphdr *iphdr = packet->iphdr;
-    struct tcphdr *tcphdr = packet->tcphdr;
-    unsigned char *payload = packet->payload;
+    struct iphdr *iphdr = packet->ip4.iphdr;
+    struct tcphdr *tcphdr = packet->ip4.tcphdr;
+    unsigned char *payload = packet->ip4.payload;
 
     char sip[16], dip[16];
     ip2str(iphdr->saddr, sip);
@@ -810,7 +810,7 @@ int process_tcp_packet(struct mypacket *packet, char inout)
     else if ((tcphdr->th_flags & TCP_ACK) && 
         !(tcphdr->th_flags & (TCP_SYN | TCP_RST))) {
         // ignore ACK packets without payload 
-        if (packet->payload_len == 0) 
+        if (packet->ip4.payload_len == 0)
             return 0;
 
         if (dport == 80) {
@@ -835,21 +835,21 @@ int process_tcp_packet(struct mypacket *packet, char inout)
                 // Generate the HTTP request line. Format: GET/POST domain/url. e.g. GET www.google.com/index.php
                 char req_line2[1000];
                 // copy GET/POST 
-                for (i = 0; payload[i] != ' ' && i < packet->payload_len; i++) {
+                for (i = 0; payload[i] != ' ' && i < packet->ip4.payload_len; i++) {
                     req_line2[i] = payload[i];
                 }
                 req_line2[i++] = ' ';
                 k = i; 
     
                 // find Host field
-                for (j = i; j < packet->payload_len; j++) {
+                for (j = i; j < packet->ip4.payload_len; j++) {
                     if (payload[j] == 'H' && payload[j+1] == 'o' &&
                             payload[j+2] == 's' && payload[j+3] == 't' &&
                             payload[j+4] == ':' && (payload[j-1] == '\r' || payload[j-1] == '\n')) {
                         j += 5;
                         // copy Host value 
                         while (payload[j] == ' ') j++;
-                        for (l = 0; l < 99 && j+l < packet->payload_len; l++) {
+                        for (l = 0; l < 99 && j+l < packet->ip4.payload_len; l++) {
                             if (payload[j+l] == '\r' || payload[j+l] == '\n')
                                 break;
                             req_line2[k++] = payload[j+l];
@@ -859,7 +859,7 @@ int process_tcp_packet(struct mypacket *packet, char inout)
                 }
 
                 // copy the rest of request line 
-                for (; i < 900 && i < packet->payload_len; i++) {
+                for (; i < 900 && i < packet->ip4.payload_len; i++) {
                     if (payload[i] == '\r' || payload[i] == '\n') {
                         break;
                     }
@@ -914,7 +914,7 @@ int process_tcp_packet(struct mypacket *packet, char inout)
             // Got a DNS response over TCP, maybe triggered by our app, or maybe not 
             log_debug("[TCP] Got a DNS response from %s:%d to %s:%d.", sip, sport, dip, dport);
             // parse the DNS response to get the first qname 
-            const unsigned char *dns_payload = packet->payload + 2;
+            const unsigned char *dns_payload = packet->ip4.payload + 2;
             struct mydnshdr *dnshdr = (struct mydnshdr*)dns_payload;
             unsigned short txn_id = htons(dnshdr->txn_id);
             int qdcount = ntohs(dnshdr->questions);
@@ -953,7 +953,7 @@ int process_tcp_packet(struct mypacket *packet, char inout)
                 // Tell the caching thread to process the dns udp response
                 // use DNS transaction ID and first query name as unique ID
                 // transaction ID alone may cause collision 
-                process_dns_tcp_response(txn_id, qname, &fourtp, tcphdr->th_seq, iphdr->ttl, packet->payload, packet->payload_len);
+                process_dns_tcp_response(txn_id, qname, &fourtp, tcphdr->th_seq, iphdr->ttl, packet->ip4.payload, packet->ip4.payload_len);
 
             }
         }
@@ -1052,41 +1052,41 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
     struct mypacket packet;
     packet.data = pkt_data;
     packet.len = plen;
-    packet.iphdr = ip_hdr(pkt_data);
+    packet.ip4.iphdr = ip_hdr(pkt_data);
     
     // parse ip
     //char sip[16], dip[16];
-    //ip2str(packet.iphdr->saddr, sip);
-    //ip2str(packet.iphdr->daddr, dip);
+    //ip2str(packet.ip4.iphdr->saddr, sip);
+    //ip2str(packet.ip4.iphdr->daddr, dip);
     //log_debug("This packet goes from %s to %s.", sip, dip);
     //log_debugv("This packet goes from %s to %s.", sip, dip);
 
-    if (is_ip_in_whitelist(packet.iphdr->saddr) || is_ip_in_whitelist(packet.iphdr->daddr)) {
+    if (is_ip_in_whitelist(packet.ip4.iphdr->saddr) || is_ip_in_whitelist(packet.ip4.iphdr->daddr)) {
         nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
         return 0;
     }
 
     int ret = 0;
 
-    switch (packet.iphdr->protocol) {
+    switch (packet.ip4.iphdr->protocol) {
         case 6: // TCP
-            packet.tcphdr = tcp_hdr(pkt_data);
-            packet.payload = tcp_payload(pkt_data);
-            packet.payload_len = packet.len - packet.iphdr->ihl*4 - packet.tcphdr->th_off*4;
+            packet.ip4.tcphdr = tcp_hdr(pkt_data);
+            packet.ip4.payload = tcp_payload(pkt_data);
+            packet.ip4.payload_len = packet.len - packet.ip4.iphdr->ihl*4 - packet.ip4.tcphdr->th_off*4;
             //show_packet(&packet);
             ret = process_tcp_packet(&packet, inout);
             break;
         case 17: // UDP
-            packet.udphdr = udp_hdr(pkt_data);
-            packet.payload = udp_payload(pkt_data);
-            packet.payload_len = packet.len - packet.iphdr->ihl*4 - 8;
-            if (packet.payload_len != ntohs(packet.udphdr->uh_ulen) - 8)
-                log_warn("UDP payload length unmatch! %d <> %d", packet.payload_len, ntohs(packet.udphdr->uh_ulen) - 8);
+            packet.ip4.udphdr = udp_hdr(pkt_data);
+            packet.ip4.payload = udp_payload(pkt_data);
+            packet.ip4.payload_len = packet.len - packet.ip4.iphdr->ihl*4 - 8;
+            if (packet.ip4.payload_len != ntohs(packet.ip4.udphdr->uh_ulen) - 8)
+                log_warn("UDP payload length unmatch! %d <> %d", packet.ip4.payload_len, ntohs(packet.ip4.udphdr->uh_ulen) - 8);
             //show_packet(&packet);
             ret = process_udp_packet(&packet, inout);
             break;
         default:
-            log_error("Invalid protocol: %d", packet.iphdr->protocol);
+            log_error("Invalid protocol: %d", packet.ip4.iphdr->protocol);
     }
     
     int verdict_ret;
@@ -1094,10 +1094,10 @@ static int cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
         if (g_modified) 
         {
             log_warn("Packet Modified.");
-            //if (packet.iphdr->protocol == 6) {
-            //    packet.tcphdr->th_sum = tcp_checksum(packet.data, ntohs(packet.iphdr->tot_len));
+            //if (packet.ip4.iphdr->protocol == 6) {
+            //    packet.ip4.tcphdr->th_sum = tcp_checksum(packet.data, ntohs(packet.ip4.iphdr->tot_len));
             //}
-            //packet.iphdr->check = ip_checksum(packet.data, packet.len);
+            //packet.ip4.iphdr->check = ip_checksum(packet.data, packet.len);
             verdict_ret = nfq_set_verdict(qh, id, NF_ACCEPT, packet.len, packet.data);
             //log_info("VERDICT MODIFIED ACCEPT");
         }

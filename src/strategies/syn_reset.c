@@ -70,14 +70,14 @@ int x7_process_synack(struct mypacket *packet)
     char sip[16], dip[16];
     unsigned short sport, dport;
 
-    struct in_addr s_in_addr = {packet->iphdr->saddr};
-    struct in_addr d_in_addr = {packet->iphdr->daddr};
+    struct in_addr s_in_addr = {packet->ip4.iphdr->saddr};
+    struct in_addr d_in_addr = {packet->ip4.iphdr->daddr};
     strncpy(sip, inet_ntoa(s_in_addr), 16);
     strncpy(dip, inet_ntoa(d_in_addr), 16);
-    sport = ntohs(packet->tcphdr->th_sport);
-    dport = ntohs(packet->tcphdr->th_dport);
+    sport = ntohs(packet->ip4.tcphdr->th_sport);
+    dport = ntohs(packet->ip4.tcphdr->th_dport);
 
-    int ttl = choose_appropriate_ttl(packet->iphdr->ttl);
+    int ttl = choose_appropriate_ttl(packet->ip4.iphdr->ttl);
     send_SYN_with_wrong_seq(dip, dport, sip, sport, ttl);
 
     return 1;

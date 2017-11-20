@@ -164,15 +164,15 @@ int x11_process_request(struct mypacket *packet)
     send_fake_SYN(packet, sflags);
     usleep(20000);
 
-//    send_RST_super(sip, sport, dip, dport, packet->tcphdr->th_seq, ttl);
+//    send_RST_super(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, ttl);
 //    usleep(20000);
-//    send_RST_super(sip, sport, dip, dport, packet->tcphdr->th_seq, ttl);
+//    send_RST_super(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, ttl);
 //    usleep(20000);
-//    send_RST_super(sip, sport, dip, dport, packet->tcphdr->th_seq, ttl);
+//    send_RST_super(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, ttl);
 //    usleep(20000);
-    //send_fake_FIN(sip, sport, dip, dport, packet->tcphdr->th_seq, 0, ttl); 
-    //send_fake_FIN(sip, sport, dip, dport, packet->tcphdr->th_seq, 0, ttl); 
-    //send_fake_FIN(sip, sport, dip, dport, packet->tcphdr->th_seq, 0, ttl); 
+    //send_fake_FIN(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, 0, ttl); 
+    //send_fake_FIN(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, 0, ttl); 
+    //send_fake_FIN(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, 0, ttl); 
 
     send_desync_data(packet, dflags);
     usleep(20000);

@@ -245,16 +245,16 @@ void process_http_response(const struct fourtuple *fourtp, unsigned int seq, uns
 void process_incoming_RST(const struct mypacket *packet)
 {
     struct tcpinfo *info = (struct tcpinfo*)malloc(sizeof(struct tcpinfo));
-    info->saddr = packet->iphdr->saddr;
-    info->daddr = packet->iphdr->daddr;
-    info->sport = packet->tcphdr->th_sport;
-    info->dport = packet->tcphdr->th_dport;
-    info->flags = packet->tcphdr->th_flags;
-    info->seq = packet->tcphdr->th_seq;
-    info->ack = packet->tcphdr->th_ack;
-    info->ttl = packet->iphdr->ttl;
-    info->win = packet->tcphdr->th_win;
-    info->fragoff = packet->iphdr->frag_off;
+    info->saddr = packet->ip4.iphdr->saddr;
+    info->daddr = packet->ip4.iphdr->daddr;
+    info->sport = packet->ip4.tcphdr->th_sport;
+    info->dport = packet->ip4.tcphdr->th_dport;
+    info->flags = packet->ip4.tcphdr->th_flags;
+    info->seq = packet->ip4.tcphdr->th_seq;
+    info->ack = packet->ip4.tcphdr->th_ack;
+    info->ttl = packet->ip4.iphdr->ttl;
+    info->win = packet->ip4.tcphdr->th_win;
+    info->fragoff = packet->ip4.iphdr->frag_off;
 
     order(ORDER_PROC_INCOMING_RST, info);
     ev_async_send(EV_DEFAULT_ &order_watcher);

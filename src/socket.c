@@ -322,8 +322,8 @@ void send_udp2(struct mypacket *packet)
 
     struct sockaddr_in dst_addr;
     dst_addr.sin_family = AF_INET;
-    dst_addr.sin_port = packet->udphdr->uh_dport;
-    dst_addr.sin_addr.s_addr = packet->iphdr->daddr;
+    dst_addr.sin_port = packet->ip4.udphdr->uh_dport;
+    dst_addr.sin_addr.s_addr = packet->ip4.iphdr->daddr;
 
     int cut_pos = 10;
     
@@ -341,9 +341,9 @@ void send_udp2(struct mypacket *packet)
         log_debug("Packet split #1 sent. total: %d, sent: %d.", tot_len, ret);
     }
 
-    tot_len = iphdr_len + udphdr_len + packet->payload_len - cut_pos;
-    memcpy(pkt + iphdr_len + udphdr_len, packet->data + cut_pos, packet->payload_len - cut_pos);
-    udphdr->uh_ulen = udphdr_len + packet->payload_len - cut_pos;
+    tot_len = iphdr_len + udphdr_len + packet->ip4.payload_len - cut_pos;
+    memcpy(pkt + iphdr_len + udphdr_len, packet->data + cut_pos, packet->ip4.payload_len - cut_pos);
+    udphdr->uh_ulen = udphdr_len + packet->ip4.payload_len - cut_pos;
 
     iphdr->id = htons((unsigned short)rand());
 

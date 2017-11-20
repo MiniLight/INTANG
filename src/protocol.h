@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
+#include <netinet/ip6.h>
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 #include <sys/types.h>
@@ -59,13 +60,27 @@ struct mypacket
 {
     unsigned char *data;
     unsigned int len;
-    struct iphdr *iphdr;  // layer 3 IP header
     union {
-        struct tcphdr *tcphdr;    // layer 4 TCP header
-        struct udphdr *udphdr;    // layer 4 UDP header
+        struct {
+            struct iphdr *iphdr;  // layer 3 IP header
+            union {
+                struct tcphdr *tcphdr;    // layer 4 TCP header
+                struct udphdr *udphdr;    // layer 4 UDP header
+            };
+            unsigned char *payload; // layer 4 payload
+            unsigned int payload_len;
+        } ip4;
+
+        struct {
+            struct ip6hdr *ip6hdr;  // layer 3 IP header
+            union {
+                struct tcphdr *tcphdr;    // layer 4 TCP header
+                struct udphdr *udphdr;    // layer 4 UDP header
+            };
+            unsigned char *payload; // layer 4 payload
+            unsigned int payload_len;
+        } ip6;
     };
-    unsigned char *payload; // layer 4 payload
-    unsigned int payload_len;
 };
 
 struct tcpinfo

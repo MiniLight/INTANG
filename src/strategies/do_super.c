@@ -103,9 +103,9 @@ int x10_process_request(struct mypacket *packet)
     send_fake_data(packet, dflags);
     usleep(20000);
     send_fake_data(packet, dflags);
-    //send_RST_super(sip, sport, dip, dport, packet->tcphdr->th_seq);
-    //send_RST_super(sip, sport, dip, dport, packet->tcphdr->th_seq);
-    //send_RST_super(sip, sport, dip, dport, packet->tcphdr->th_seq);
+    //send_RST_super(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq);
+    //send_RST_super(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq);
+    //send_RST_super(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq);
 
     return 1;
 }

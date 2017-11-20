@@ -79,22 +79,22 @@ int x40_process_synack(struct mypacket *packet)
     char sip[16], dip[16];
     unsigned short sport, dport;
 
-    struct in_addr s_in_addr = {packet->iphdr->saddr};
-    struct in_addr d_in_addr = {packet->iphdr->daddr};
+    struct in_addr s_in_addr = {packet->ip4.iphdr->saddr};
+    struct in_addr d_in_addr = {packet->ip4.iphdr->daddr};
     strncpy(sip, inet_ntoa(s_in_addr), 16);
     strncpy(dip, inet_ntoa(d_in_addr), 16);
-    sport = ntohs(packet->tcphdr->th_sport);
-    dport = ntohs(packet->tcphdr->th_dport);
+    sport = ntohs(packet->ip4.tcphdr->th_sport);
+    dport = ntohs(packet->ip4.tcphdr->th_dport);
 
     unsigned char ttl = get_ttl(str2ip(sip));
     log_debug("The probed TTL value is %d.", ttl);
     ttl -= 2; // to not reach server
 
-    send_fake_FIN(dip, dport, sip, sport, packet->tcphdr->th_ack, htonl(ntohl(packet->tcphdr->th_seq)+1), ttl);
+    send_fake_FIN(dip, dport, sip, sport, packet->ip4.tcphdr->th_ack, htonl(ntohl(packet->ip4.tcphdr->th_seq)+1), ttl);
     usleep(30000);
-    send_fake_FIN(dip, dport, sip, sport, packet->tcphdr->th_ack, htonl(ntohl(packet->tcphdr->th_seq)+1), ttl);
+    send_fake_FIN(dip, dport, sip, sport, packet->ip4.tcphdr->th_ack, htonl(ntohl(packet->ip4.tcphdr->th_seq)+1), ttl);
     usleep(30000);
-    send_fake_FIN(dip, dport, sip, sport, packet->tcphdr->th_ack, htonl(ntohl(packet->tcphdr->th_seq)+1), ttl);
+    send_fake_FIN(dip, dport, sip, sport, packet->ip4.tcphdr->th_ack, htonl(ntohl(packet->ip4.tcphdr->th_seq)+1), ttl);
     
     return 1;
 }

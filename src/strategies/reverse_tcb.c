@@ -73,9 +73,9 @@ int x17_process_request(struct mypacket *packet)
     if (1) {
         rflags |= INS_DISC_BAD_TCP_CHECKSUM;
     }
-    //send_fake_FIN(sip, sport, dip, dport, packet->tcphdr->th_seq, 0, ttl); 
-    //send_fake_FIN(sip, sport, dip, dport, packet->tcphdr->th_seq, 0, ttl); 
-    //send_fake_FIN(sip, sport, dip, dport, packet->tcphdr->th_seq, 0, ttl); 
+    //send_fake_FIN(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, 0, ttl); 
+    //send_fake_FIN(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, 0, ttl); 
+    //send_fake_FIN(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, 0, ttl); 
     send_fake_RST(packet, rflags);
     usleep(20000);
     send_fake_RST(packet, rflags);

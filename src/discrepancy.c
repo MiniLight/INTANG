@@ -70,14 +70,14 @@ void send_fake_SYN(struct mypacket *orig_packet, unsigned int flags)
     unsigned int seq_num, ack_num;
     struct send_tcp_vars vars = {};
 
-    struct in_addr s_in_addr = {orig_packet->iphdr->saddr};
-    struct in_addr d_in_addr = {orig_packet->iphdr->daddr};
+    struct in_addr s_in_addr = {orig_packet->ip4.iphdr->saddr};
+    struct in_addr d_in_addr = {orig_packet->ip4.iphdr->daddr};
     strncpy(sip, inet_ntoa(s_in_addr), 16);
     strncpy(dip, inet_ntoa(d_in_addr), 16);
-    sport = ntohs(orig_packet->tcphdr->th_sport);
-    dport = ntohs(orig_packet->tcphdr->th_dport);
-    seq_num = ntohl(orig_packet->tcphdr->th_seq);
-    ack_num = ntohl(orig_packet->tcphdr->th_ack);
+    sport = ntohs(orig_packet->ip4.tcphdr->th_sport);
+    dport = ntohs(orig_packet->ip4.tcphdr->th_dport);
+    seq_num = ntohl(orig_packet->ip4.tcphdr->th_seq);
+    ack_num = ntohl(orig_packet->ip4.tcphdr->th_ack);
 
     memset(&vars, 0, sizeof vars);
     strncpy(vars.src_ip, sip, 16);
@@ -94,8 +94,8 @@ void send_fake_SYN(struct mypacket *orig_packet, unsigned int flags)
     //vars.tcp_opt_len = 4;
 
     // copy the tcp option header to the insertion packet
-    char *tcp_opt = (char*)orig_packet->tcphdr + 20;
-    unsigned char tcp_opt_len = orig_packet->tcphdr->th_off * 4 - 20;
+    char *tcp_opt = (char*)orig_packet->ip4.tcphdr + 20;
+    unsigned char tcp_opt_len = orig_packet->ip4.tcphdr->th_off * 4 - 20;
     memcpy(vars.tcp_opt, tcp_opt, tcp_opt_len);
     vars.tcp_opt_len = tcp_opt_len;
 
@@ -109,14 +109,14 @@ void send_fake_FIN(struct mypacket *orig_packet, unsigned int flags)
     unsigned int seq_num, ack_num;
     struct send_tcp_vars vars = {};
 
-    struct in_addr s_in_addr = {orig_packet->iphdr->saddr};
-    struct in_addr d_in_addr = {orig_packet->iphdr->daddr};
+    struct in_addr s_in_addr = {orig_packet->ip4.iphdr->saddr};
+    struct in_addr d_in_addr = {orig_packet->ip4.iphdr->daddr};
     strncpy(sip, inet_ntoa(s_in_addr), 16);
     strncpy(dip, inet_ntoa(d_in_addr), 16);
-    sport = ntohs(orig_packet->tcphdr->th_sport);
-    dport = ntohs(orig_packet->tcphdr->th_dport);
-    seq_num = ntohl(orig_packet->tcphdr->th_seq);
-    ack_num = ntohl(orig_packet->tcphdr->th_ack);
+    sport = ntohs(orig_packet->ip4.tcphdr->th_sport);
+    dport = ntohs(orig_packet->ip4.tcphdr->th_dport);
+    seq_num = ntohl(orig_packet->ip4.tcphdr->th_seq);
+    ack_num = ntohl(orig_packet->ip4.tcphdr->th_ack);
 
     memset(&vars, 0, sizeof vars);
     strncpy(vars.src_ip, sip, 16);
@@ -133,8 +133,8 @@ void send_fake_FIN(struct mypacket *orig_packet, unsigned int flags)
     //vars.tcp_opt_len = 4;
 
     // copy the tcp option header to the insertion packet
-    char *tcp_opt = (char*)orig_packet->tcphdr + 20;
-    unsigned char tcp_opt_len = orig_packet->tcphdr->th_off * 4 - 20;
+    char *tcp_opt = (char*)orig_packet->ip4.tcphdr + 20;
+    unsigned char tcp_opt_len = orig_packet->ip4.tcphdr->th_off * 4 - 20;
     memcpy(vars.tcp_opt, tcp_opt, tcp_opt_len);
     vars.tcp_opt_len = tcp_opt_len;
 
@@ -148,14 +148,14 @@ void send_fake_RST(struct mypacket *orig_packet, unsigned int flags)
     unsigned int seq_num, ack_num;
     struct send_tcp_vars vars = {};
 
-    struct in_addr s_in_addr = {orig_packet->iphdr->saddr};
-    struct in_addr d_in_addr = {orig_packet->iphdr->daddr};
+    struct in_addr s_in_addr = {orig_packet->ip4.iphdr->saddr};
+    struct in_addr d_in_addr = {orig_packet->ip4.iphdr->daddr};
     strncpy(sip, inet_ntoa(s_in_addr), 16);
     strncpy(dip, inet_ntoa(d_in_addr), 16);
-    sport = ntohs(orig_packet->tcphdr->th_sport);
-    dport = ntohs(orig_packet->tcphdr->th_dport);
-    seq_num = ntohl(orig_packet->tcphdr->th_seq);
-    ack_num = ntohl(orig_packet->tcphdr->th_ack);
+    sport = ntohs(orig_packet->ip4.tcphdr->th_sport);
+    dport = ntohs(orig_packet->ip4.tcphdr->th_dport);
+    seq_num = ntohl(orig_packet->ip4.tcphdr->th_seq);
+    ack_num = ntohl(orig_packet->ip4.tcphdr->th_ack);
 
     memset(&vars, 0, sizeof vars);
     strncpy(vars.src_ip, sip, 16);
@@ -172,8 +172,8 @@ void send_fake_RST(struct mypacket *orig_packet, unsigned int flags)
     //vars.tcp_opt_len = 4;
 
     // copy the tcp option header to the insertion packet
-    char *tcp_opt = (char*)orig_packet->tcphdr + 20;
-    unsigned char tcp_opt_len = orig_packet->tcphdr->th_off * 4 - 20;
+    char *tcp_opt = (char*)orig_packet->ip4.tcphdr + 20;
+    unsigned char tcp_opt_len = orig_packet->ip4.tcphdr->th_off * 4 - 20;
     memcpy(vars.tcp_opt, tcp_opt, tcp_opt_len);
     vars.tcp_opt_len = tcp_opt_len;
 
@@ -187,14 +187,14 @@ void send_fake_data(struct mypacket *orig_packet, unsigned int flags)
     unsigned int seq_num, ack_num;
     struct send_tcp_vars vars = {};
 
-    struct in_addr s_in_addr = {orig_packet->iphdr->saddr};
-    struct in_addr d_in_addr = {orig_packet->iphdr->daddr};
+    struct in_addr s_in_addr = {orig_packet->ip4.iphdr->saddr};
+    struct in_addr d_in_addr = {orig_packet->ip4.iphdr->daddr};
     strncpy(sip, inet_ntoa(s_in_addr), 16);
     strncpy(dip, inet_ntoa(d_in_addr), 16);
-    sport = ntohs(orig_packet->tcphdr->th_sport);
-    dport = ntohs(orig_packet->tcphdr->th_dport);
-    seq_num = ntohl(orig_packet->tcphdr->th_seq);
-    ack_num = ntohl(orig_packet->tcphdr->th_ack);
+    sport = ntohs(orig_packet->ip4.tcphdr->th_sport);
+    dport = ntohs(orig_packet->ip4.tcphdr->th_dport);
+    seq_num = ntohl(orig_packet->ip4.tcphdr->th_seq);
+    ack_num = ntohl(orig_packet->ip4.tcphdr->th_ack);
 
     memset(&vars, 0, sizeof vars);
     strncpy(vars.src_ip, sip, 16);
@@ -211,13 +211,13 @@ void send_fake_data(struct mypacket *orig_packet, unsigned int flags)
     //vars.tcp_opt_len = 4;
 
     // copy the tcp option header to the insertion packet
-    char *tcp_opt = (char*)orig_packet->tcphdr + 20;
-    unsigned char tcp_opt_len = orig_packet->tcphdr->th_off * 4 - 20;
+    char *tcp_opt = (char*)orig_packet->ip4.tcphdr + 20;
+    unsigned char tcp_opt_len = orig_packet->ip4.tcphdr->th_off * 4 - 20;
     memcpy(vars.tcp_opt, tcp_opt, tcp_opt_len);
     vars.tcp_opt_len = tcp_opt_len;
 
     // garbage data
-    vars.payload_len = orig_packet->payload_len;
+    vars.payload_len = orig_packet->ip4.payload_len;
     int i;
     for (i = 0; i < vars.payload_len; i++) {
         vars.payload[i] = '.';
@@ -233,14 +233,14 @@ void send_fake_SYN_ACK(struct mypacket *orig_packet, unsigned int flags)
     unsigned int seq_num, ack_num;
     struct send_tcp_vars vars = {};
 
-    struct in_addr s_in_addr = {orig_packet->iphdr->saddr};
-    struct in_addr d_in_addr = {orig_packet->iphdr->daddr};
+    struct in_addr s_in_addr = {orig_packet->ip4.iphdr->saddr};
+    struct in_addr d_in_addr = {orig_packet->ip4.iphdr->daddr};
     strncpy(sip, inet_ntoa(s_in_addr), 16);
     strncpy(dip, inet_ntoa(d_in_addr), 16);
-    sport = ntohs(orig_packet->tcphdr->th_sport);
-    dport = ntohs(orig_packet->tcphdr->th_dport);
-    seq_num = ntohl(orig_packet->tcphdr->th_seq);
-    ack_num = ntohl(orig_packet->tcphdr->th_ack);
+    sport = ntohs(orig_packet->ip4.tcphdr->th_sport);
+    dport = ntohs(orig_packet->ip4.tcphdr->th_dport);
+    seq_num = ntohl(orig_packet->ip4.tcphdr->th_seq);
+    ack_num = ntohl(orig_packet->ip4.tcphdr->th_ack);
 
     memset(&vars, 0, sizeof vars);
     strncpy(vars.src_ip, sip, 16);
@@ -257,8 +257,8 @@ void send_fake_SYN_ACK(struct mypacket *orig_packet, unsigned int flags)
     //vars.tcp_opt_len = 4;
 
     // copy the tcp option header to the insertion packet
-    char *tcp_opt = (char*)orig_packet->tcphdr + 20;
-    unsigned char tcp_opt_len = orig_packet->tcphdr->th_off * 4 - 20;
+    char *tcp_opt = (char*)orig_packet->ip4.tcphdr + 20;
+    unsigned char tcp_opt_len = orig_packet->ip4.tcphdr->th_off * 4 - 20;
     memcpy(vars.tcp_opt, tcp_opt, tcp_opt_len);
     vars.tcp_opt_len = tcp_opt_len;
 
@@ -272,14 +272,14 @@ void send_desync_data(struct mypacket *orig_packet, unsigned int flags)
     unsigned int seq_num, ack_num;
     struct send_tcp_vars vars = {};
 
-    struct in_addr s_in_addr = {orig_packet->iphdr->saddr};
-    struct in_addr d_in_addr = {orig_packet->iphdr->daddr};
+    struct in_addr s_in_addr = {orig_packet->ip4.iphdr->saddr};
+    struct in_addr d_in_addr = {orig_packet->ip4.iphdr->daddr};
     strncpy(sip, inet_ntoa(s_in_addr), 16);
     strncpy(dip, inet_ntoa(d_in_addr), 16);
-    sport = ntohs(orig_packet->tcphdr->th_sport);
-    dport = ntohs(orig_packet->tcphdr->th_dport);
-    seq_num = ntohl(orig_packet->tcphdr->th_seq);
-    ack_num = ntohl(orig_packet->tcphdr->th_ack);
+    sport = ntohs(orig_packet->ip4.tcphdr->th_sport);
+    dport = ntohs(orig_packet->ip4.tcphdr->th_dport);
+    seq_num = ntohl(orig_packet->ip4.tcphdr->th_seq);
+    ack_num = ntohl(orig_packet->ip4.tcphdr->th_ack);
 
     memset(&vars, 0, sizeof vars);
     strncpy(vars.src_ip, sip, 16);
@@ -296,8 +296,8 @@ void send_desync_data(struct mypacket *orig_packet, unsigned int flags)
     //vars.tcp_opt_len = 4;
 
     // copy the tcp option header to the insertion packet
-    char *tcp_opt = (char*)orig_packet->tcphdr + 20;
-    unsigned char tcp_opt_len = orig_packet->tcphdr->th_off * 4 - 20;
+    char *tcp_opt = (char*)orig_packet->ip4.tcphdr + 20;
+    unsigned char tcp_opt_len = orig_packet->ip4.tcphdr->th_off * 4 - 20;
     memcpy(vars.tcp_opt, tcp_opt, tcp_opt_len);
     vars.tcp_opt_len = tcp_opt_len;
 

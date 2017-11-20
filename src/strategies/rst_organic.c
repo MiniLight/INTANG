@@ -78,12 +78,12 @@ int x19_process_syn(struct mypacket *packet)
     char sip[16], dip[16];
     unsigned short sport, dport;
 
-    struct in_addr s_in_addr = {packet->iphdr->saddr};
-    struct in_addr d_in_addr = {packet->iphdr->daddr};
+    struct in_addr s_in_addr = {packet->ip4.iphdr->saddr};
+    struct in_addr d_in_addr = {packet->ip4.iphdr->daddr};
     strncpy(sip, inet_ntoa(s_in_addr), 16);
     strncpy(dip, inet_ntoa(d_in_addr), 16);
-    sport = ntohs(packet->tcphdr->th_sport);
-    dport = ntohs(packet->tcphdr->th_dport);
+    sport = ntohs(packet->ip4.tcphdr->th_sport);
+    dport = ntohs(packet->ip4.tcphdr->th_dport);
 
     //send_probing_SYNs(sip, dip, dport);
 
@@ -96,21 +96,21 @@ int x19_process_synack(struct mypacket *packet)
     char sip[16], dip[16];
     unsigned short sport, dport;
 
-    struct in_addr s_in_addr = {packet->iphdr->saddr};
-    struct in_addr d_in_addr = {packet->iphdr->daddr};
+    struct in_addr s_in_addr = {packet->ip4.iphdr->saddr};
+    struct in_addr d_in_addr = {packet->ip4.iphdr->daddr};
     strncpy(sip, inet_ntoa(s_in_addr), 16);
     strncpy(dip, inet_ntoa(d_in_addr), 16);
-    sport = ntohs(packet->tcphdr->th_sport);
-    dport = ntohs(packet->tcphdr->th_dport);
+    sport = ntohs(packet->ip4.tcphdr->th_sport);
+    dport = ntohs(packet->ip4.tcphdr->th_dport);
 
     // choose the appropriate ttl
-    int ttl = choose_appropriate_ttl(packet->iphdr->ttl);
-    set_ttl(packet->iphdr->saddr, ttl);
+    int ttl = choose_appropriate_ttl(packet->ip4.iphdr->ttl);
+    set_ttl(packet->ip4.iphdr->saddr, ttl);
 
     // prevent loss of ACK in three-way handshake
-    //send_ACK(dip, dport, sip, sport, packet->tcphdr->th_ack, htonl(ntohl(packet->tcphdr->th_seq)+1));
-    //send_ACK(dip, dport, sip, sport, packet->tcphdr->th_ack, htonl(ntohl(packet->tcphdr->th_seq)+1));
-    //send_ACK(dip, dport, sip, sport, packet->tcphdr->th_ack, htonl(ntohl(packet->tcphdr->th_seq)+1));
+    //send_ACK(dip, dport, sip, sport, packet->ip4.tcphdr->th_ack, htonl(ntohl(packet->ip4.tcphdr->th_seq)+1));
+    //send_ACK(dip, dport, sip, sport, packet->ip4.tcphdr->th_ack, htonl(ntohl(packet->ip4.tcphdr->th_seq)+1));
+    //send_ACK(dip, dport, sip, sport, packet->ip4.tcphdr->th_ack, htonl(ntohl(packet->ip4.tcphdr->th_seq)+1));
 
     return 0;
 }
@@ -120,15 +120,15 @@ int x19_process_request(struct mypacket *packet)
     char sip[16], dip[16];
     unsigned short sport, dport;
 
-    struct in_addr s_in_addr = {packet->iphdr->saddr};
-    struct in_addr d_in_addr = {packet->iphdr->daddr};
+    struct in_addr s_in_addr = {packet->ip4.iphdr->saddr};
+    struct in_addr d_in_addr = {packet->ip4.iphdr->daddr};
     strncpy(sip, inet_ntoa(s_in_addr), 16);
     strncpy(dip, inet_ntoa(d_in_addr), 16);
-    sport = ntohs(packet->tcphdr->th_sport);
-    dport = ntohs(packet->tcphdr->th_dport);
+    sport = ntohs(packet->ip4.tcphdr->th_sport);
+    dport = ntohs(packet->ip4.tcphdr->th_dport);
 
     // choose the appropriate ttl
-    int ttl = get_ttl(packet->iphdr->daddr);
+    int ttl = get_ttl(packet->ip4.iphdr->daddr);
     if (ttl == 0) {
         log_debug("TTL probing hasn't started.");
         // use default ttl
@@ -141,12 +141,12 @@ int x19_process_request(struct mypacket *packet)
         log_debug("The probed TTL value is %d.", ttl);
     }
     
-    send_RST_super(sip, sport, dip, dport, packet->tcphdr->th_seq, ttl);
-    //send_RST_super(sip, sport, dip, dport, packet->tcphdr->th_seq, ttl);
-    //send_RST_super(sip, sport, dip, dport, packet->tcphdr->th_seq, ttl);
-    //send_desync_data(sip, sport, dip, dport, packet->tcphdr->th_seq, packet->tcphdr->th_ack, ttl); 
-    //send_desync_data(sip, sport, dip, dport, packet->tcphdr->th_seq, packet->tcphdr->th_ack, ttl); 
-    //send_desync_data(sip, sport, dip, dport, packet->tcphdr->th_seq, packet->tcphdr->th_ack, ttl); 
+    send_RST_super(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, ttl);
+    //send_RST_super(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, ttl);
+    //send_RST_super(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, ttl);
+    //send_desync_data(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, packet->ip4.tcphdr->th_ack, ttl); 
+    //send_desync_data(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, packet->ip4.tcphdr->th_ack, ttl); 
+    //send_desync_data(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, packet->ip4.tcphdr->th_ack, ttl); 
 
     return 1;
 }

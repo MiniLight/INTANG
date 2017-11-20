@@ -57,16 +57,16 @@ int x28_process_request(struct mypacket *packet)
     char sip[16], dip[16];
     unsigned short sport, dport;
 
-    struct in_addr s_in_addr = {packet->iphdr->saddr};
-    struct in_addr d_in_addr = {packet->iphdr->daddr};
+    struct in_addr s_in_addr = {packet->ip4.iphdr->saddr};
+    struct in_addr d_in_addr = {packet->ip4.iphdr->daddr};
     strncpy(sip, inet_ntoa(s_in_addr), 16);
     strncpy(dip, inet_ntoa(d_in_addr), 16);
-    sport = ntohs(packet->tcphdr->th_sport);
-    dport = ntohs(packet->tcphdr->th_dport);
+    sport = ntohs(packet->ip4.tcphdr->th_sport);
+    dport = ntohs(packet->ip4.tcphdr->th_dport);
 
     int i;
     char junk_data[65535];
-    for (i = 0; i < packet->payload_len; i++) {
+    for (i = 0; i < packet->ip4.payload_len; i++) {
         junk_data[i] = 'A';
     }
 
@@ -86,11 +86,11 @@ int x28_process_request(struct mypacket *packet)
     //static int sent;
     //if (sent != 123456) {
     //log_info("send junk");
-    send_ip_fragment(sip, sport, dip, dport, packet->tcphdr->th_seq, packet->tcphdr->th_ack, ipid, fragoff, packet->payload_len+tcphdr_len-fragoff, 0, junk_data, packet->payload_len);
+    send_ip_fragment(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, packet->ip4.tcphdr->th_ack, ipid, fragoff, packet->ip4.payload_len+tcphdr_len-fragoff, 0, junk_data, packet->ip4.payload_len);
     //log_info("send remaining");
-    send_ip_fragment(sip, sport, dip, dport, packet->tcphdr->th_seq, packet->tcphdr->th_ack, ipid, fragoff, packet->payload_len+tcphdr_len-fragoff, 0, packet->payload, packet->payload_len);
+    send_ip_fragment(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, packet->ip4.tcphdr->th_ack, ipid, fragoff, packet->ip4.payload_len+tcphdr_len-fragoff, 0, packet->ip4.payload, packet->ip4.payload_len);
     //log_info("send get");
-    send_ip_fragment(sip, sport, dip, dport, packet->tcphdr->th_seq, packet->tcphdr->th_ack, ipid, 0, fragoff, 1, packet->payload, packet->payload_len);
+    send_ip_fragment(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, packet->ip4.tcphdr->th_ack, ipid, 0, fragoff, 1, packet->ip4.payload, packet->ip4.payload_len);
     //sent = 123456;
     //}
     //else {

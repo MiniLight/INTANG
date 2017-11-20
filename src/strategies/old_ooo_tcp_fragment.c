@@ -124,21 +124,21 @@ int x29_process_request(struct mypacket *packet)
     char sip[16], dip[16];
     unsigned short sport, dport;
 
-    struct in_addr s_in_addr = {packet->iphdr->saddr};
-    struct in_addr d_in_addr = {packet->iphdr->daddr};
+    struct in_addr s_in_addr = {packet->ip4.iphdr->saddr};
+    struct in_addr d_in_addr = {packet->ip4.iphdr->daddr};
     strncpy(sip, inet_ntoa(s_in_addr), 16);
     strncpy(dip, inet_ntoa(d_in_addr), 16);
-    sport = ntohs(packet->tcphdr->th_sport);
-    dport = ntohs(packet->tcphdr->th_dport);
+    sport = ntohs(packet->ip4.tcphdr->th_sport);
+    dport = ntohs(packet->ip4.tcphdr->th_dport);
 
     int segoff = 20;
 
     // For reassembly of overlapping TCP segments, 
     // if a subsequent left-equal segment arrives, 
     // GFW prefers it (TCP5). Khattak etal.
-    send_data(sip, sport, dip, dport, htonl(ntohl(packet->tcphdr->th_seq)+segoff), packet->tcphdr->th_ack, packet->payload+segoff, packet->payload_len-segoff);
-    send_junk_data(sip, sport, dip, dport, htonl(ntohl(packet->tcphdr->th_seq)+segoff), packet->tcphdr->th_ack, packet->payload_len-segoff);
-    send_data(sip, sport, dip, dport, packet->tcphdr->th_seq, packet->tcphdr->th_ack, packet->payload, segoff);
+    send_data(sip, sport, dip, dport, htonl(ntohl(packet->ip4.tcphdr->th_seq)+segoff), packet->ip4.tcphdr->th_ack, packet->ip4.payload+segoff, packet->ip4.payload_len-segoff);
+    send_junk_data(sip, sport, dip, dport, htonl(ntohl(packet->ip4.tcphdr->th_seq)+segoff), packet->ip4.tcphdr->th_ack, packet->ip4.payload_len-segoff);
+    send_data(sip, sport, dip, dport, packet->ip4.tcphdr->th_seq, packet->ip4.tcphdr->th_ack, packet->ip4.payload, segoff);
 
     return -1;
 }

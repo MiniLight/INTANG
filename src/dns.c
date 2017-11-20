@@ -151,8 +151,8 @@ int is_poisoned_domain(const char *domain)
 /*
 int dns_strat_process(struct mypacket *packet)
 {
-    struct iphdr *iphdr = packet->iphdr;
-    struct tcphdr *tcphdr = packet->tcphdr;
+    struct iphdr *iphdr = packet->ip4.iphdr;
+    struct tcphdr *tcphdr = packet->ip4.tcphdr;
     
     // parse ip and port
     char sip[16], dip[16];
